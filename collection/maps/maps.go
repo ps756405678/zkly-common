@@ -1,5 +1,6 @@
 package maps
 
+// 获取map的键值集合
 func Keys[K comparable, V any](m map[K]V) []K {
 	var result []K
 	for k := range m {
@@ -8,6 +9,7 @@ func Keys[K comparable, V any](m map[K]V) []K {
 	return result
 }
 
+// 获取map的值集合
 func Values[K comparable, V any](m map[K]V) []V {
 	var result []V
 	for _, v := range m {
