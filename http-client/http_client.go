@@ -2,6 +2,7 @@ package http_client
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -88,6 +89,30 @@ func (c *HttpClient) PostForm(url string, data map[string]string, headers map[st
 	for k, v := range data {
 		form.WriteField(k, v)
 	}
+	form.Close()
+	headers["Content-Type"] = form.FormDataContentType()
+	return c.Post(url, buff.Bytes(), headers)
+}
+
+func (c *HttpClient) PostFile(url string, data map[string]string, fileKey string, file *multipart.FileHeader, headers map[string]string) ([]byte, error) {
+
+	fh, err := file.Open()
+	if err != nil {
+		fmt.Println("read file error:" + err.Error())
+		return nil, err
+	}
+
+	buff := new(bytes.Buffer)
+	form := multipart.NewWriter(buff)
+	for k, v := range data {
+		form.WriteField(k, v)
+	}
+	formIo, err := form.CreateFormFile(fileKey, file.Filename)
+	if err != nil {
+		fmt.Println("creats stream:" + err.Error())
+		return nil, err
+	}
+	io.Copy(formIo, fh)
 	form.Close()
 	headers["Content-Type"] = form.FormDataContentType()
 	return c.Post(url, buff.Bytes(), headers)
