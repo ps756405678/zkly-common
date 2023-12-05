@@ -58,3 +58,40 @@ func ForEach[E any](sli []E, consumer func(E, int)) {
 		consumer(e, idx)
 	}
 }
+
+func Sort[E any](sli *[]E, comparer func(*E, *E) int) {
+	qs[E](sli, comparer, 0, len(*sli)-1)
+}
+
+func qs[E any](sli *[]E, comparer func(*E, *E) int, start int, end int) {
+	if start >= end {
+		return
+	}
+	var l = start
+	var r = end
+	cen := (*sli)[l]
+	// 23154
+	for l < r {
+		for comparer(&(*sli)[r], &cen) >= 0 && l < r {
+			r--
+		}
+		if l < r {
+			swap[E](sli, l, r)
+		}
+		for comparer(&(*sli)[l], &cen) <= 0 && l < r {
+			l++
+		}
+		if l < r {
+			swap[E](sli, l, r)
+		}
+	}
+
+	qs[E](sli, comparer, l+1, end)
+	qs[E](sli, comparer, start, l-1)
+}
+
+func swap[E any](sli *[]E, i int, j int) {
+	tmp := (*sli)[i]
+	(*sli)[i] = (*sli)[j]
+	(*sli)[j] = tmp
+}
